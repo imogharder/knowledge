@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Knowledge Cube</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#060608;color:#e8e8e8;font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:#0a0a0c;}
+::-webkit-scrollbar-thumb{background:#1e1e28;border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:#2a2a38;}
+textarea,input{font-family:'Space Grotesk',sans-serif;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes slideIn{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+.fade-up{animation:fadeUp 0.25s ease forwards;}
+.slide-in{animation:slideIn 0.2s ease forwards;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+// ── STORAGE ────────────────────────────────────────────────
+const LS = {
+  get: k => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} },
+  del: k => { try { localStorage.removeItem(k); } catch(e) {} },
+};
+
+// ── FULL KNOWLEDGE BASE ────────────────────────────────────
+const KNOWLEDGE_BASE = {
+  blackpill: {
+    label: "BLACKPILL",
+    icon: "💊",
+    color: "#C0392B",
+    glow: "#C0392B22",
+    desc: "Brutal truths about genetics, hierarchy & attraction",
+    categories: {
+      core_theory: {
+        label: "Core Theory",
+        icon: "🧠",
+        color: "#E05C4A",
+        entries: [
+          {
+            id: "bp_looks_theory",
+            title: "Looks Theory",
+            summary: "Physical appearance is the primary determinant of social and romantic success.",
+            content: `Looks Theory is the foundational blackpill premise: your physical appearance — particularly your facial structure — determines the majority of your outcomes in dating, social hierarchy, and even professional settings.
+
+The theory holds that personality, confidence, and social skills are secondary and largely irrelevant without a baseline level of physical attractiveness. This is backed by psychological research showing that attractive individuals are perceived as more intelligent, trustworthy, and competent — the Halo Effect in full force.
+
+In the dating market, looks serve as the initial filter. No amount of "game" or personality can overcome being below the threshold. This is why the community insists: FIX YOUR FACE FIRST, everything else is cope.
+
+Key implications:
+• SMV (Sexual Market Value) is mostly determined at birth
+• The top 20% of men receive 80% of female attention (Pareto principle applied to dating)
+• Personality matters only AFTER clearing the looks threshold
+• Money and status are looks multipliers, not replacements
+
+Brutal truth: A 6/10 with great personality will be outcompeted by a silent 8/10 in almost every dating context. The data on dating apps confirms this repeatedly — top-tier men receive disproportionate matches regardless of their bio content.`,
+            tags: ["foundational", "SMV", "halo effect", "dating"]
+          },
+          {
+            id: "bp_8020",
+            title: "The 80/20 Rule",
+            summary: "The top 20% of men receive ~80% of female attention and matches.",
+            content: `The 80/20 rule (Pareto Distribution applied to sexual market dynamics) is one of the most empirically supported blackpill observations.
+
+Dating app data repeatedly shows:
+• Top 78% of women compete for the top 22% of men (OkCupid internal data, 2009)
+• Average male on Tinder receives likes from ~0.6% of women, while average woman receives likes from ~35% of men
+• The top 1% of male profiles receive 16% of all matches
+• This gap has WIDENED with the rise of dating apps and social media
+
+Why this happens: Women evolved hypergamous instincts — always seeking the highest-value mate available. In ancestral environments this was regulated by social proximity. The internet removed all proximity gates, exposing every woman to the global top tier of men simultaneously. This collapsed the market for average men.
+
+The practical consequence: Most men are competing in an illusion of a fair market. The game is rigged by biology. The blackpill isn't that you'll never succeed — it's that the SCALE of disadvantage is far larger than mainstream media acknowledges.
+
+This is not misogyny. Women's preferences are biologically rational given their heavier reproductive investment. It's just the truth of the market.`,
+            tags: ["statistics", "dating apps", "hypergamy", "market"]
+          },
+          {
+            id: "bp_evo_psych",
+            title: "Evolutionary Psychology Basis",
+            summary: "Human attraction patterns are hardwired by millions of years of evolution.",
+            content: `Evolutionary psychology provides the scientific backbone for blackpill theory. Human attraction isn't random or socially constructed — it's the output of millions of years of reproductive optimization.
+
+FEMALE ATTRACTION TRIGGERS (evolved signals of genetic fitness):
+• Facial symmetry → indicates developmental health and absence of genetic mutations
+• Strong jaw/mandible → signals testosterone exposure during puberty = high T male
+• Maxillary prominence → forward-grown midface = proper development, airway health
+• Height → ancestral proxy for dominance, resource acquisition, and genetics
+• Broad shoulders/narrow waist → physical strength, testosterone marker
+• Canthal tilt (positive) → hunter eyes = dominance marker in primates
+• Deep-set eyes/orbital rim → same dominance signal
+• Low body fat → health and metabolic efficiency marker
+
+MALE ATTRACTION TRIGGERS (evolved signals of fertility/reproductive value):
+• Youth (neoteny) → fertility and long reproductive window
+• Low WHR (waist-hip ratio 0.7) → estrogen dominance, fertility indicator
+• Symmetrical features → similar to male, health indicator
+• Skin clarity → hormonal balance, health
+
+The crucial blackpill insight: these preferences aren't chosen consciously. Women don't "decide" to prefer masculine faces — the attraction is automatic, pre-cognitive, and largely immune to social pressure or political correction. This is why "personality matters" is cope — it activates later in relationship bonding, not in initial attraction.`,
+            tags: ["evolution", "biology", "attraction", "genetics"]
+          },
+          {
+            id: "bp_halo_effect",
+            title: "The Halo Effect",
+            summary: "Attractive people are automatically perceived as smarter, kinder, and more capable.",
+            content: `The Halo Effect is one of the most replicated findings in social psychology: physical attractiveness creates a positive cognitive bias that bleeds into all perceived traits.
+
+DOCUMENTED HALO EFFECT OUTCOMES:
+• Attractive people are rated as more intelligent (even when test scores are identical)
+• Attractive defendants receive lighter sentences in court
+• Attractive students receive higher grades from teachers on identical work
+• Attractive job candidates are hired more often at equal qualifications
+• Attractive people are perceived as more trustworthy and honest
+• Attractive men are assumed to be more competent leaders
+
+Landmark studies:
+• Dion, Berscheid & Walster (1972) — "What is Beautiful is Good" — the original halo study
+• Hamermesh & Biddle (1994) — attractive workers earn 10-15% more than below-average looking counterparts
+• Langlois et al. (2000) — meta-analysis of 919 studies confirmed halo effect across all cultures
+
+The blackpill implication: Life is graded on a curve for attractive people. This isn't just about dating — it's a life advantage that compounds over decades. The attractive person gets more help, more benefit of the doubt, more opportunities. This is structural, not incidental. Looksmaxxing isn't vanity — it's ROI maximization.`,
+            tags: ["psychology", "bias", "social", "studies"]
+          },
+          {
+            id: "bp_blackpill_vs_redpill",
+            title: "Blackpill vs Redpill",
+            summary: "Key distinctions between the two theories and where they diverge.",
+            content: `The blackpill and redpill share some observations but reach fundamentally different conclusions about agency and solutions.
+
+REDPILL STANCE:
+• Looks matter but can be overcome with game, status, and confidence
+• The primary variable is mindset — "alpha frame" can compensate for looks
+• Women are attracted to dominance behaviors which can be learned
+• Self-improvement through lifting, money, and social skills closes the gap
+• Every man can become competitive with effort
+
+BLACKPILL STANCE:
+• Looks are the primary variable and largely determine ceiling
+• "Game" works only within your looks tier — it cannot elevate you between tiers
+• Confidence is a result of being attractive, not a cause of it
+• Structural limitations (bone structure, height) cannot be meaningfully changed
+• Effort has heavily diminishing returns below a certain facial threshold
+
+WHERE BLACKPILL IS MORE ACCURATE:
+• Explains why some men remain invisible despite years of self-improvement
+• Explains the non-linearity: a 5 becoming a 6 through effort gains almost nothing; a 7 becoming an 8 gains everything
+• More consistent with actual dating app data
+• Redpill successes are mostly confirmation bias from men who were already 7+
+
+WHERE REDPILL HAS A POINT:
+• Personality and status DO matter in non-app contexts (social circles, work)
+• Looksmaxxing (legit blackpill technique) does improve outcomes
+• Sub-maxing can move you within your tier and occasionally to the edge of the next
+• Total blackpill fatalism leads to incel mindset which is counterproductive`,
+            tags: ["theory", "debate", "redpill", "agency"]
+          },
+        ]
+      },
+      bone_structure: {
+        label: "Bone is Law",
+        icon: "🦴",
+        color: "#D4916A",
+        entries: [
+          {
+            id: "bp_maxilla",
+            title: "The Maxilla — King of the Face",
+            summary: "The maxillary bone is the most important single bone for facial attractiveness.",
+            content: `The maxilla (upper jaw bone) is arguably the most important bone for facial aesthetics and is the centerpiece of the blackpill's "bone is law" thesis.
+
+WHAT IS THE MAXILLA:
+The maxilla is the paired bone forming the upper jaw, the hard palate, the floor of the nasal cavity, and the floor of the orbit. It houses the upper teeth and literally forms the central scaffolding of the face.
+
+WHY IT'S CRITICAL:
+• A well-developed, forward-grown maxilla creates midface projection — the face looks 3D and masculine from the side
+• Maxillary deficiency causes a "sunken" midface, long face syndrome, and contributes to weak chin appearance (retrognathia)
+• Forward maxilla pushes the nose up, the cheekbones up and out, and creates positive canthal tilt
+• Maxillary hypoplasia (under-development) is epidemic in modern populations due to: soft food diets, mouth breathing, lack of breastfeeding
+
+VISUAL MARKERS OF GOOD MAXILLA:
+• Prominent cheekbones that project forward and laterally
+• "Under-eye support" — no hollow tear troughs
+• Short philtrum (distance between nose base and upper lip)
+• Teeth visible at rest without showing too much gum
+• Strong midfacial projection from the side profile
+
+IMPROVEMENT:
+• Mewing (tongue posture) — theoretically encourages forward maxillary growth in developing individuals
+• Hard food diet — stimulates bone remodeling
+• MSE (Maxillary Skeletal Expander) — orthodontic appliance that widens and expands the maxilla
+• Orthotropics — facial development approach targeting maxillary growth
+• Surgical: Le Fort I osteotomy — moves maxilla forward
+
+The maxilla is the foundation. Fix the maxilla, the whole face improves.`,
+            tags: ["maxilla", "bone structure", "mewing", "face"]
+          },
+          {
+            id: "bp_mandible",
+            title: "The Mandible — Jaw is Law",
+            summary: "Jaw definition and gonial angle are primary signals of testosterone and masculinity.",
+            content: `The mandible (lower jaw) is the most testosterone-associated bone in the face and one of the strongest attractiveness signals. "Jaw is Law" is a blackpill axiom for good reason.
+
+ANATOMY:
+The mandible is a single horseshoe-shaped bone — the only movable bone in the skull. It consists of the body (horizontal portion) and the ramus (vertical portions on each side). The gonial angle is where the body meets the ramus, and its shape is central to jaw aesthetics.
+
+THE GONIAL ANGLE:
+• Ideal gonial angle: approximately 120-125° — creates a square, defined jaw
+• High gonial angle (>130°) = rounded, weak jaw — "soy jaw"
+• Low gonial angle (<115°) = overly square but can look harsh
+• Gonial angle is heavily influenced by testosterone exposure during puberty
+
+BIGONIAL WIDTH:
+• Distance between the two gonial angles (back corners of jaw)
+• Wide bigonial width = wide strong jaw = masculinity marker
+• Narrow bigonial width = tapered jaw = feminizing
+
+WHY IT MATTERS:
+• The jaw is the last part of the face to develop in males (puberty/early adulthood)
+• It's a reliable signal of testosterone history — cannot be faked by behavior
+• Wide jaw with defined angle reads as dominant at a pre-conscious level
+• Strong jaw compensates for other facial shortcomings
+
+IMPROVEMENT OPTIONS:
+• Mewing + chewing → minor bone remodeling in developing individuals
+• Hard chewing diet → masseter hypertrophy (temporary but visible improvement)
+• Jawzrsize / mastic gum → masseter development
+• Surgical: Jaw angle implants, sagittal split osteotomy, genioplasty
+• Filler (non-surgical, temporary): jaw angle filler, chin filler
+
+"The jaw is not everything, but without it, everything else doesn't matter."`,
+            tags: ["jaw", "mandible", "gonial angle", "testosterone"]
+          },
+          {
+            id: "bp_orbital_rim",
+            title: "Orbital Rim & Hunter Eyes",
+            summary: "Deep-set eyes and prominent orbital rim create the hunter-eye appearance linked to dominance.",
+            content: `The orbital rim (the bony socket surrounding the eye) and the eyes themselves are among the most important facial features for attractiveness, especially male dominance signaling.
+
+HUNTER EYES vs PREY EYES:
+• Hunter eyes: deep-set, slightly hooded, with prominent superior orbital rim → reads as dominant, masculine, threatening
+• Prey eyes: high-exposure, round, surprised-looking → reads as submissive, feminine
+• This distinction traces back to predator vs prey animal morphology — deeply hardwired in human threat-assessment
+
+SUPERIOR ORBITAL RIM:
+• This is the bony shelf above the eye (brow ridge)
+• Prominent in males with strong testosterone exposure during development
+• Creates shadow above the eye — the "shadow effect" that makes eyes look deep and intense
+• Neanderthals had extreme brow ridges; modern humans have reduced but still sexually dimorphic versions
+
+CANTHAL TILT:
+• The angle of the eye — measured from inner corner (medial canthus) to outer corner (lateral canthus)
+• Positive canthal tilt: outer corner higher than inner → dominant, masculine
+• Negative canthal tilt: outer corner lower than inner → tired, submissive look
+• Positive tilt is associated with higher attractiveness ratings in men
+
+EYE EXPOSURE (scleral show):
+• Ideal: minimal to no white visible below the iris at rest
+• Excessive scleral show = "puppy dog eyes" = feminizing, submissive
+• Excessive lower scleral show (sanpaku eyes) = associated with health issues
+
+IMPROVEMENT:
+• Orbital rim: surgical only — cannot change bone without surgery
+• Canthal tilt: canthoplasty (surgical), fox eye threading (temporary), lower blepharoplasty
+• Hunter eye appearance: mewing may change orbital support long-term; brow grooming can enhance perceived depth`,
+            tags: ["eyes", "orbital", "canthal tilt", "hunter eyes", "dominance"]
+          },
+          {
+            id: "bp_fwhr",
+            title: "FWHR — Facial Width to Height Ratio",
+            summary: "The single-number metric that best predicts perceived dominance and testosterone.",
+            content: `Facial Width-to-Height Ratio (fWHR) is one of the most studied metrics in evolutionary psychology and is considered a reliable biomarker of testosterone exposure and perceived dominance.
+
+MEASUREMENT:
+• Width: bizygomatic width (cheekbone to cheekbone at widest point)
+• Height: distance from upper lip to midpoint between eyebrows
+• High fWHR = wide face relative to its height = more masculine
+• Low fWHR = narrow long face = more feminine
+
+THE RESEARCH:
+• Carré & McCormick (2008): High fWHR men were perceived as more dominant and aggressive
+• Lefevre et al. (2013): fWHR correlated with testosterone levels
+• Haselhuhn & Wong (2012): High fWHR men behaved more aggressively and unethically in business (perceived as more powerful)
+• Stirrat & Perrett (2010): High fWHR faces rated as less trustworthy but more dominant
+• Multiple studies link high fWHR to athletic success, financial performance, and military rank
+
+THE PARADOX:
+• High fWHR = more dominant, more attractive to short-term mates
+• High fWHR = rated as LESS trustworthy and kind
+• This creates a tension: very high fWHR men appear threatening; moderate-high is optimal for long-term attraction
+• Ideal appears to be fWHR ~2.0-2.1 (Brad Pitt and others in this range)
+
+WHAT DETERMINES IT:
+• Testosterone exposure in utero (prenatal T) and during puberty
+• Genetics — skull morphology is heavily heritable
+• Ethnicity influences average fWHR significantly
+
+BOTTOM LINE: fWHR is a hard-coded masculinity signal. Cannot be changed without surgery. But knowing your fWHR helps you understand your baseline.`,
+            tags: ["fWHR", "testosterone", "dominance", "masculinity", "measurement"]
+          },
+          {
+            id: "bp_clavicles",
+            title: "Clavicles & Frame",
+            summary: "Clavicle length determines shoulder width — the most important body masculinity marker.",
+            content: `Clavicle length is arguably the single most important bone for male body aesthetics. You can't gym your way to wide clavicles — this is pure genetics.
+
+WHY CLAVICLES:
+• Clavicles (collarbones) determine the width of your shoulder girdle
+• The shoulder-to-waist ratio (the "V-taper") is the primary male body attractiveness signal
+• Longer clavicles = wider shoulders = better V-taper
+• Shorter clavicles = narrow shoulders = impossible to achieve aesthetic proportions regardless of muscle mass
+
+THE MATH:
+• Ideal shoulder-to-waist ratio: approximately 1.6:1 (golden ratio)
+• A man with 16" clavicles can achieve this aesthetically; a man with 13" clavicles CANNOT, even at 3% body fat with maximal muscle
+• This is why some men look aesthetic at 170lbs and others can't achieve the look at 230lbs
+
+WHAT CAN BE DONE:
+• Lateral raises → develop medial delts, creates ILLUSION of wider shoulders
+• Proper chest development → adds to the visual width
+• Keeping waist narrow → improves the ratio
+• Surgery: clavicle-lengthening osteotomy exists but is rare, risky, and expensive
+
+THE BLACKPILL POINT:
+Clavicle length is set by puberty. If you have narrow frames, you're fighting physics at the gym. You can build an aesthetic body within your genetic frame — but you cannot escape your frame. This is why some men look like they're built for aesthetics and others never quite get there despite identical training.
+
+Pro tip: Look at your shoulder-to-waist ratio in a tank top. That ratio tells you more about your genetic potential than anything else.`,
+            tags: ["clavicles", "frame", "shoulders", "body", "V-taper"]
+          },
+        ]
+      },
+      hierarchy: {
+        label: "SMV & Hierarchy",
+        icon: "📊",
+        color: "#9B59B6",
+        entries: [
+          {
+            id: "bp_smv",
+            title: "Sexual Market Value (SMV)",
+            summary: "The composite score that determines your position in the mating hierarchy.",
+            content: `Sexual Market Value (SMV) is the blackpill/redpill framework for quantifying a person's desirability in the dating market. It's a composite score influenced by multiple factors with different weights.
+
+MALE SMV COMPONENTS (weighted roughly):
+1. Looks/Facial aesthetics — 50-55% of total SMV
+2. Height — 15-20%
+3. Status/Resources — 10-15%
+4. Personality/Social skills — 5-10%
+5. Body — 5-10%
+
+Note: These weights are approximate and context-dependent. Looks weight is HIGHER on apps (80%+) and LOWER in social circles (maybe 35%).
+
+THE SMV SCALE:
+• 1-3: Below average, struggles in dating market
+• 4-5: Average, gets some attention with effort
+• 6-7: Above average, relatively comfortable dating market
+• 8-9: Top tier, passive high quality attention
+• 10: Theoretical maximum — almost non-existent
+
+MALE vs FEMALE SMV TRAJECTORIES:
+• Male SMV peaks in late 20s-30s and can extend with status
+• Female SMV peaks ~18-24, declines sharply after 30
+• This asymmetry means older high-value men can date younger women
+• It also means young men are at their lowest SMV when most motivated to date
+
+THE BLACKPILL INSIGHT ON SMV:
+The common advice to "work on yourself" is true but incomplete. Working on yourself raises your SMV within your genetic ceiling — but most self-improvement targets things with LOW SMV weight (confidence, style) while ignoring the highest-weight factor (face). Looksmaxxing is rational because it targets the variable with the highest ROI.`,
+            tags: ["SMV", "rating", "hierarchy", "market", "value"]
+          },
+          {
+            id: "bp_hypergamy",
+            title: "Hypergamy — Women Marry Up",
+            summary: "Women have an evolved tendency to seek partners at or above their own value level.",
+            content: `Hypergamy is the evolutionary tendency for females to seek mates of equal or higher status/quality than themselves. It's one of the most documented and controversial observations in evolutionary psychology.
+
+THE MECHANISM:
+Female hypergamy evolved because in ancestral environments, mate quality had enormous fitness consequences. A woman mating with a high-quality male (strong genes, resources, protection) dramatically improved offspring survival. A woman mating down had nothing to gain and everything to lose reproductively.
+
+This instinct did not vanish in modernity. It persists as:
+• A persistent drive to "date up" in looks, status, or both
+• Dissatisfaction with a partner who improves slower than her expectations
+• Tendency to leave relationships when a perceived better option emerges ("hypergamous branch-swinging")
+• Reluctance to date men below a certain looks/height threshold regardless of personality
+
+EVIDENCE:
+• Bruch & Newman (2018) study of 186,000 users on dating platform: women consistently messaged men rated 26% above their own attractiveness rating
+• Men messaged women roughly equal to or slightly above their level
+• Cross-cultural studies confirm women prefer high-status mates more universally than men prefer high-status mates
+
+PRACTICAL IMPLICATIONS:
+• Average men must aim ABOVE average to get average women
+• "Out of your league" is asymmetric — harder for men to punch above than women
+• As female economic independence increases, hypergamy intensifies (women become MORE selective, not less)
+• The "she'll love you for who you are" narrative directly contradicts hypergamy
+
+IMPORTANT: Hypergamy is not inherently evil. It's a biological program. Understanding it removes the sting of rejection and clarifies what actually needs to change.`,
+            tags: ["hypergamy", "women", "evolution", "dating", "selection"]
+          },
+        ]
+      },
+      pills_explained: {
+        label: "The Pills Explained",
+        icon: "💊",
+        color: "#E74C3C",
+        entries: [
+          {
+            id: "bp_what_is_blackpill",
+            title: "What IS the Blackpill?",
+            summary: "A complete breakdown of what the blackpill actually means and claims.",
+            content: `The blackpill is a worldview — not a political stance, not a movement, not an ideology — a lens for understanding social and sexual dynamics that prioritizes biological and statistical reality over feel-good narratives.
+
+CORE CLAIMS:
+1. Physical appearance (primarily facial genetics) is the dominant factor in dating success
+2. The distribution of romantic success is highly unequal and largely determined at birth
+3. Most self-improvement advice is ineffective because it targets low-impact variables
+4. The mainstream narrative ("be yourself," "personality wins") is empirically false
+5. Recognizing these truths, however painful, is more useful than comforting lies
+
+WHAT THE BLACKPILL IS NOT:
+• It is NOT a justification for violence or hatred toward women
+• It is NOT complete fatalism — looksmaxxing and sub-maxing are blackpill-endorsed responses
+• It is NOT incompatible with having a good life — knowing the terrain helps you navigate it
+• It is NOT new — Schopenhauer, Nietzsche, Darwin all wrote adjacent ideas
+
+THE THREE RESPONSES TO THE BLACKPILL:
+1. DENIAL (bluepill): "That's not true, personality matters most" → comfortable but leads to wasted effort and confusion about why things aren't working
+2. FATALISM (incel blackpill): "I'm genetically inferior, it's over" → paralysis, depression, resentment
+3. ADAPTATION (pragmatic blackpill): "The game is real, let me optimize what I can while accepting what I can't" → this is the correct response
+
+THE GOAL: Use the blackpill as a map, not a verdict. Accurate maps don't guarantee you reach your destination, but wrong maps guarantee you won't.`,
+            tags: ["definition", "philosophy", "overview", "response"]
+          },
+          {
+            id: "bp_cope",
+            title: "Cope vs Real Maxx",
+            summary: "Distinguishing genuine improvement strategies from delusion and coping mechanisms.",
+            content: `One of the most important blackpill distinctions: COPE vs REAL MAXX. Not all self-improvement is equal. Some approaches genuinely improve outcomes; others are expensive, time-consuming substitutes for confronting the real problem.
+
+COPE (ineffective or minimal ROI):
+• Getting a haircut as primary strategy ("haircut maxx") — marginal
+• "Confidence coaching" — confidence is a result of attractiveness, not a cause
+• Style maxing beyond a point — helps at the margin but can't fix facial aesthetics
+• Personality development as primary dating strategy — only matters after looks threshold
+• Money as a primary substitute for looks below a certain threshold
+• "Just talk to more women" without addressing the root
+
+REAL MAXX (genuine ROI):
+• Facial looksmaxxing: skincare (tretinoin, peptides), jaw training, mewing in teens
+• Body composition: getting lean reveals facial structure, improves frame
+• Height maxing if still growing: sleep, nutrition, avoiding testosterone suppression early
+• Surgical options: rhinoplasty, chin/jaw implants, canthoplasty — for appropriate candidates
+• Hairline and hair: Fin/Min/Keto stack — one of the highest ROI interventions
+• Lighting and photo maxing: understand your best angles, lighting for max presentation
+• Style: correct for your face shape, not a generic "alpha" look
+
+THE HONEST FRAMEWORK:
+Ask: "Will this change how I look to a woman in the first 3 seconds of visual assessment?"
+• YES → Real maxx
+• NO → Cope (or low-priority)
+
+This doesn't mean cope activities have no value in life — they might make you happier, healthier, or more successful professionally. But if the goal is improving dating outcomes, be precise about what actually moves the needle.`,
+            tags: ["cope", "improvement", "strategy", "ROI", "looksmaxxing"]
+          },
+        ]
+      }
+    }
+  },
+
+  looksmax: {
+    label: "LOOKSMAXXING",
+    icon: "💎",
+    color: "#D4A853",
+    glow: "#D4A85322",
+    desc: "Systematic physical optimization & enhancement protocols",
+    categories: {
+      facial_bones: {
+        label: "Facial Bone Protocols",
+        icon: "🦴",
+        color: "#E8C97A",
+        entries: [
+          {
+            id: "lm_mewing",
+            title: "Mewing — Complete Protocol",
+            summary: "Tongue posture technique for maxillary development and facial restructuring.",
+            content: `Mewing is a tongue posture technique developed by Dr. Mike Mew based on orthotropics — the theory that proper oral posture shapes facial development and maintains facial structure in adults.
+
+THE CORRECT TECHNIQUE:
+1. Close your lips naturally (no strain)
+2. Teeth lightly touching or slightly separated
+3. Entire tongue on the roof of the mouth (hard palate) — not just the tip
+4. Back third of tongue applies light upward pressure
+5. No teeth clenching
+6. Breathe through nose ONLY
+
+COMMON ERRORS:
+• Only placing tongue TIP on palate — this is wrong and potentially harmful
+• Pressing too hard and creating TMJ issues
+• Mouth breathing while attempting to mew (defeats the purpose)
+• Teeth clenching (masseter strain, TMJ)
+
+THE SCIENCE:
+• Wolf's Law: bone remodels in response to mechanical stress over time
+• The maxilla is suturally connected — it can respond to sustained pressure
+• Strongest evidence is in children and teenagers (bones still plastic)
+• Adult effects are real but slower and more limited
+• Dr. Mew's father (John Mew, founder of orthotropics) had patients with documented facial changes
+
+REALISTIC EXPECTATIONS:
+• Ages 6-18: significant changes possible, facial growth can be directed
+• Ages 18-25: moderate changes possible, jawline definition, subtle midface
+• Ages 25+: very slow changes, mainly maintenance and preventing further recession
+• Adults: primary benefit is posture, airway, maintaining what you have
+
+COMBINED APPROACH:
+Mewing works best combined with: nasal breathing at all times, hard food diet (chewing stimulates bone), proper sleep posture (back, not face-down), and good head posture (no forward head tilt).
+
+Bottom line: If you're young, mew religiously. If you're older, mew for maintenance and don't expect miracles.`,
+            tags: ["mewing", "maxilla", "tongue posture", "orthotropics", "bone"]
+          },
+          {
+            id: "lm_jaw_training",
+            title: "Jaw Training & Masseter Hypertrophy",
+            summary: "Developing the masseter muscle for improved jawline definition.",
+            content: `The masseter muscle is the primary chewing muscle and one of the strongest muscles in the body relative to its size. Developing it can dramatically improve jawline definition — especially for those with adequate bone structure who lack muscular thickness.
+
+ANATOMY:
+• Masseter runs from the zygomatic arch to the mandible angle
+• Superficial head: most visible, contributes to jaw "squareness"
+• Deep head: contributes to jaw power and subtle projection
+• Well-developed masseters widen the lower face and sharpen the jaw angle
+
+TRAINING METHODS:
+
+1. MASTIC GUM (highest recommendation)
+• Greek tree resin — significantly harder than regular gum
+• Hours of sustained chewing creates real hypertrophy over months
+• Start with 1-2 pieces, build up gradually
+• Downside: expensive, jaw fatigue initially
+
+2. FALIM GUM (Turkish)
+• Hard sugar-free gum, more affordable than mastic
+• Slightly less effective but more accessible
+• Good starting point
+
+3. JAWZRSIZE / CHEW BALLS
+• Silicone devices for jaw resistance training
+• Sets and reps approach (more controllable stimulus)
+• Start low resistance, progress over months
+• Risk: TMJ issues if overdone — don't train through pain
+
+4. HARD FOOD DIET
+• Switching from processed soft foods to whole foods (raw carrots, steak, hard vegetables)
+• Slow and consistent stimulus — ancestral approach
+• Lower intensity than devices but sustainable long-term
+
+PROTOCOL:
+• 3-4 sessions per week minimum, daily maximum
+• Rest days matter — muscle recovery applies here too
+• Expect visible changes in 3-6 months with consistency
+
+CAVEATS:
+• TMJ disorder risk — if you have jaw clicking or pain, consult a dentist first
+• Asymmetric chewing → asymmetric development (alternate sides)
+• Masseter hypertrophy WITHOUT good bone structure mainly makes the face rounder/wider — not always ideal`,
+            tags: ["jaw", "masseter", "mastic gum", "jawzrsize", "muscle"]
+          },
+        ]
+      },
+      skincare: {
+        label: "Skincare Science",
+        icon: "✨",
+        color: "#E87AB8",
+        entries: [
+          {
+            id: "lm_tretinoin",
+            title: "Tretinoin — The Gold Standard",
+            summary: "Vitamin A derivative with the strongest evidence base for skin transformation.",
+            content: `Tretinoin (all-trans retinoic acid) is a prescription retinoid and the most evidence-backed topical compound in dermatology. It is the non-negotiable foundation of any serious skincare protocol.
+
+MECHANISM:
+• Binds to retinoic acid receptors in skin cells
+• Increases cell turnover rate (speeds up shedding of old cells)
+• Stimulates collagen production in dermis
+• Increases epidermal thickness
+• Reduces melanin transfer (fades hyperpigmentation)
+• Normalizes follicular keratinization (prevents acne)
+
+WHAT IT TREATS:
+✓ Acne (FDA approved) — eliminates comedones, normalizes sebum
+✓ Fine lines and wrinkles — increases collagen, thickens dermis
+✓ Hyperpigmentation — disperses melanin clusters
+✓ Texture — smooths surface irregularities
+✓ Pore appearance — not truly "shrinks" but improves perception
+✓ Skin laxity (long-term) — ongoing collagen stimulus
+
+PROTOCOL — STARTING:
+• Strength: Start at 0.025% cream (most tolerable)
+• Frequency: 1-2x per week for first month
+• Application: Pea-size amount to ENTIRE face (not spot treatment)
+• Timing: Nighttime ONLY (photosensitive)
+• Buffer method: Apply moisturizer first, wait 30 mins, apply tret (reduces irritation)
+
+PROTOCOL — ADVANCING:
+• Month 2-3: Increase to 3x/week if tolerated
+• Month 4-6: Increase to every other night
+• Month 6+: Nightly if tolerated (goal)
+• Strength: Advance to 0.05% then 0.1% over 1-2 years
+
+THE RETINOID UGLY PHASE:
+Weeks 4-10: purging, peeling, redness, dryness. THIS IS NORMAL AND TEMPORARY. Most people quit here. Push through — the payoff comes at month 3-6.
+
+STACK:
+Morning: Vitamin C serum → niacinamide → SPF 50+ (non-negotiable with tret)
+Night: Tretinoin → squalane/ceramide moisturizer
+
+SPF IS MANDATORY — tretinoin thins stratum corneum temporarily, dramatically increasing UV damage risk without protection.`,
+            tags: ["tretinoin", "retinoid", "skincare", "collagen", "acne"]
+          },
+          {
+            id: "lm_peptides_skin",
+            title: "Peptide Stack for Skin",
+            summary: "GHK-Cu, Matrixyl, and collagen peptides for accelerated skin regeneration.",
+            content: `Peptides are short amino acid chains that act as biological messengers in skin. Combined with tretinoin, a solid peptide stack addresses aging, texture, and regeneration from multiple angles simultaneously.
+
+THE BIG THREE:
+
+1. GHK-COPPER (GHK-Cu)
+• Most studied peptide for skin — >60 years of research
+• Stimulates collagen and elastin synthesis directly
+• Promotes wound healing and skin regeneration
+• Anti-inflammatory properties
+• Use: 0.05-1% topical serum or spray, AM or PM (not same time as Vitamin C)
+• Brands: Skin Biology, various Korean brands
+
+2. MATRIXYL 3000 (Palmitoyl Tripeptide-1 + Palmitoyl Tetrapeptide-7)
+• Signals skin to produce more collagen (matrikine-based — mimics collagen breakdown signals)
+• Boosts hyaluronic acid production
+• Proven in multiple clinical trials
+• Use: 10%+ concentration for effects (most products underdose)
+• Can layer with retinoids (different mechanism, no conflict)
+
+3. ARGIRELINE (Acetyl Hexapeptide-3)
+• "Botox in a jar" — inhibits neurotransmitter release slightly (acetylcholine)
+• Reduces expression line depth with consistent use
+• Much weaker than actual Botox but zero downtime, no needles
+• Use: 5-10% concentration, around eyes and forehead
+
+ORAL COLLAGEN:
+• Hydrolyzed collagen peptides (10g/day): multiple RCTs showing improved skin elasticity, hydration, and reduced wrinkle depth
+• Bioavailability is real — specific peptides (particularly from Type I/III collagen) are absorbed and used by skin fibroblasts
+• Best brands: Vital Proteins, Great Lakes, Skinade (targeted)
+
+STACK ORDER (PM):
+Tretinoin night → off night: Vitamin C (AM) → Niacinamide → GHK-Cu → Matrixyl → Moisturizer`,
+            tags: ["peptides", "GHK-Cu", "matrixyl", "collagen", "anti-aging"]
+          },
+        ]
+      },
+      hair: {
+        label: "Hair Protocol",
+        icon: "💈",
+        color: "#E8A07A",
+        entries: [
+          {
+            id: "lm_hairloss",
+            title: "The Big 3 — Hair Loss Protocol",
+            summary: "Finasteride, Minoxidil, Ketoconazole — the evidence-based triad for hair retention.",
+            content: `Androgenic alopecia (male pattern baldness) is the highest-ROI hair issue to address. The "Big 3" protocol has the strongest evidence base for stopping and partially reversing hair loss.
+
+THE MECHANISM OF MPB:
+• DHT (dihydrotestosterone) — converted from testosterone by 5-alpha reductase enzyme
+• DHT binds to androgen receptors in hair follicles
+• In genetically susceptible follicles: causes miniaturization over time
+• Miniaturized follicles produce thinner, shorter hairs → eventually stop producing
+• This is GENETIC — the receptors' sensitivity to DHT is inherited
+
+THE BIG 3:
+
+1. FINASTERIDE (Propecia)
+• Type II 5-alpha reductase inhibitor
+• Reduces scalp DHT by ~70%, serum DHT by ~65%
+• 83% of men stabilize or regrow hair with consistent use (FDA approved)
+• Dose: 1mg/day oral (or 0.5mg EOD for lower side effect risk)
+• Timeline: 6-12 months for full effect; must continue forever (stopping = rapid loss of gains)
+• Side effects: ~2% experience sexual side effects; mostly reversible on stopping
+• Low-dose topical finasteride: 0.25% solution — systemic absorption is much lower
+
+2. MINOXIDIL (Rogaine)
+• Opens potassium channels in follicle cells, extending anagen (growth) phase
+• Increases follicle size and blood flow to scalp
+• FDA approved for MPB
+• Dose: 5% solution or 5% foam, twice daily to scalp
+• Oral minoxidil: 0.25-1.25mg/day — significantly more effective than topical, now preferred
+• Timeline: 4-6 months to see results
+• Combined with fin: synergistic — different mechanisms
+
+3. KETOCONAZOLE SHAMPOO
+• Antifungal that also has anti-androgenic effects at scalp level
+• Reduces scalp DHT locally
+• Studies show equivalent efficacy to 2% minoxidil when used 3x/week
+• Use: Nizoral 2% (or 1% available OTC), leave on scalp 2-5 minutes, 3x/week
+
+OPTIMAL PROTOCOL:
+• Oral fin 0.5-1mg/day + Oral minoxidil 0.5-1.25mg/day + Ketoconazole 2% shampoo 3x/week
+• Add: Dermaroller (0.5mm, weekly) to scalp — creates mild trauma that increases minoxidil absorption
+• Add: PRP if budget allows — genuine emerging evidence
+
+START EARLY. Once follicles die, there is no bringing them back without transplant.`,
+            tags: ["finasteride", "minoxidil", "hair loss", "DHT", "MPB", "big 3"]
+          },
+        ]
+      },
+      peptides_body: {
+        label: "Peptides & Stacks",
+        icon: "🧬",
+        color: "#A07AE8",
+        entries: [
+          {
+            id: "lm_mk677",
+            title: "MK-677 (Ibutamoren)",
+            summary: "Growth hormone secretagogue — the bodybuilder's GH hack.",
+            content: `MK-677 (Ibutamoren Mesylate) is a non-peptide growth hormone secretagogue — it orally mimics ghrelin and stimulates the pituitary to release GH and consequently IGF-1.
+
+MECHANISM:
+• Agonist of ghrelin receptor (GHSR)
+• Stimulates pulsatile GH release from pituitary
+• Raises IGF-1 levels significantly (60-100% increase in studies)
+• NOT a SARM — does not affect androgen receptors directly
+• Oral bioavailability — unlike actual GH injections
+
+STUDIED BENEFITS:
+✓ Significant increase in GH and IGF-1 levels
+✓ Improved sleep quality (especially deep sleep / slow-wave sleep)
+✓ Increased muscle mass in elderly populations (catabolic prevention)
+✓ Reduced muscle wasting in GH-deficient patients
+✓ Improved bone density (studies in post-menopausal women)
+✓ Skin quality improvements (GH → collagen synthesis)
+
+LOOKSMAX RELEVANCE:
+• In YOUNG users (<21): potential for facial bone development (GH affects bone growth)
+• Sleep improvement → recovery and HGH natural pulse during deep sleep
+• IGF-1 → skin thickness, collagen
+• Body recomposition (lean mass gain, fat redistribution)
+
+DOSING:
+• 10-25mg/day oral
+• Low dose (10mg) for sleep/skin/recovery with minimal sides
+• Higher dose (25mg) for muscle/body comp effects
+• Take at night (maximizes nocturnal GH pulse; manages hunger side effect with sleep)
+• Cycle: 3 months on, 1 month off (prevent receptor desensitization)
+
+SIDE EFFECTS (important):
+• Increased hunger — significant, especially at higher doses
+• Water retention — temporary, resolves on stopping
+• Potential insulin resistance with long-term high-dose use — monitor glucose
+• Increased cortisol — mild
+• Lethargy at first — usually resolves in 2 weeks
+
+IMPORTANT: Not FDA approved. Research compound. Discuss with doctor. Quality control varies massively between suppliers.`,
+            tags: ["MK-677", "ibutamoren", "GH", "IGF-1", "peptides", "growth hormone"]
+          },
+          {
+            id: "lm_bpc157",
+            title: "BPC-157 — The Healing Peptide",
+            summary: "Body Protection Compound with regenerative and healing properties.",
+            content: `BPC-157 (Body Protection Compound-157) is a pentadecapeptide derived from human gastric juice. It has extensive animal research showing remarkable healing and regenerative properties.
+
+MECHANISM (proposed):
+• Upregulates growth hormone receptors in tendon fibroblasts
+• Promotes angiogenesis (new blood vessel formation) at injury sites
+• Modulates NO system (nitric oxide) → vasodilation and healing
+• Activates the cytoskeletal organization system
+• Anti-inflammatory via multiple pathways
+
+STUDIED EFFECTS (animal models — mostly rat):
+✓ Accelerated tendon healing — one of the most replicated findings
+✓ Accelerated ligament healing (ACL studies in rats)
+✓ Gastric ulcer healing (original discovered application — very robust)
+✓ Muscle tear repair acceleration
+✓ Bone healing
+✓ Brain protection and recovery after traumatic brain injury
+✓ Improvement in gut inflammation (IBD models)
+
+LOOKSMAX RELEVANCE:
+• Post-surgical recovery (rhinoplasty, jaw surgery) — may accelerate tissue healing
+• Joint health maintenance (jaw training, gym)
+• Gut health → nutrient absorption → skin, hair quality
+
+ADMINISTRATION:
+• Subcutaneous injection: 250-500mcg near injury site, 1-2x daily
+• Oral/sublingual: 500-1000mcg — lower bioavailability but convenient and still shows GI effects
+• IM injection: also used for systemic effects
+• Cycle: 4-6 weeks for injury; can run longer for gut health (lower dose)
+
+HUMAN EVIDENCE:
+Currently limited — most evidence is animal studies. One Phase 2 trial for inflammatory bowel disease. Anecdotal human reports are overwhelmingly positive for healing applications. No serious adverse effects documented despite widespread use.
+
+IMPORTANT: Unregulated research peptide. Source quality matters enormously.`,
+            tags: ["BPC-157", "healing", "peptides", "recovery", "tendon"]
+          },
+        ]
+      }
+    }
+  },
+
+  redpill: {
+    label: "REDPILL",
+    icon: "🔴",
+    color: "#E85D26",
+    glow: "#E85D2622",
+    desc: "Dominance, game theory, self-mastery & social dynamics",
+    categories: {
+      male_dimorphism: {
+        label: "Male Dimorphism",
+        icon: "⚡",
+        color: "#FF8C55",
+        entries: [
+          {
+            id: "rp_dimorphism",
+            title: "Sexual Dimorphism — The Foundation",
+            summary: "Why human male-female differences exist and what they mean for attraction.",
+            content: `Sexual dimorphism refers to the systematic differences in form between males and females of the same species. In humans, these differences are moderate (we're not as dimorphic as gorillas, more than gibbons) but highly significant for attraction.
+
+WHY DIMORPHISM EXISTS:
+• Sexual selection — females choosing mates based on quality indicators
+• Intrasexual competition — males competing with other males (drove size and strength evolution)
+• These pressures compounded over millions of years to create the human male template
+
+KEY HUMAN MALE DIMORPHIC TRAITS:
+• Larger body size (average 15-20% taller, 20-40% heavier than females)
+• Greater upper body muscle mass and strength
+• Broader shoulders, narrower hips
+• More angular facial features (testosterone's effect on bone)
+• Lower voice (larger larynx from testosterone)
+• Body hair
+• Facial hair
+• More prominent brow ridge
+• Stronger jaw and chin
+
+TESTOSTERONE AS THE ARCHITECT:
+These traits are almost entirely driven by testosterone — specifically the surge during puberty. Higher testosterone exposure → greater dimorphism → traditionally stronger masculinity signals.
+
+WHY THIS MATTERS FOR ATTRACTION:
+Female attraction evolved to detect fitness signals. High dimorphism in a male = higher historical testosterone = (likely) better genetic fitness. This is why masculine features are universally (across cultures) associated with male attractiveness.
+
+THE REDPILL INSIGHT:
+You cannot manufacture dimorphism from scratch in adulthood. But you CAN maximize the dimorphism you have: heavy lifting maximizes your muscular potential, body fat reduction reveals your facial structure, posture optimization expresses your frame at its best. The mission: work WITH your biology, not against it.`,
+            tags: ["dimorphism", "testosterone", "masculinity", "evolution", "biology"]
+          },
+        ]
+      },
+      social_dynamics: {
+        label: "Social Dynamics",
+        icon: "♟",
+        color: "#FFB07A",
+        entries: [
+          {
+            id: "rp_frame",
+            title: "Frame Control",
+            summary: "The psychological foundation of all social influence and dominance.",
+            content: `Frame is your internal reality — the lens through which you interpret events, your definition of the situation, your set of values and assumptions about how the world works. Frame CONTROL is the ability to maintain your own frame under social pressure.
+
+WHY FRAME MATTERS:
+In every social interaction, there is a dominant frame and a submissive frame. The person who controls the frame controls the interaction. This isn't metaphysical — it's a concrete behavioral reality that plays out in every conversation, negotiation, and date.
+
+Signs that you're operating in someone else's frame:
+• Feeling the need to explain or justify yourself unprompted
+• Changing your behavior or opinion based on their reaction
+• Feeling anxiety about whether they approve of you
+• Laughing at things that aren't funny to you, to fit in
+• Lowering your voice, shrinking your physical presence
+
+Signs of strong frame:
+• Comfort with silence and pauses
+• Willingness to disagree without anxiety
+• Not changing your position just because someone is annoyed
+• Treating challenging behavior with amusement rather than defensiveness
+• Others unconsciously begin matching YOUR energy and pace
+
+HOW TO BUILD FRAME:
+1. Know your values — frame starts with having actual convictions
+2. Outcome independence — stop needing a particular result from any interaction
+3. Slow down — rushing = neediness = weak frame; deliberate pacing = confidence
+4. "Amused mastery" — treat everything as slightly entertaining, you're never threatened
+5. Speak less, observe more — those with strong frame don't over-explain
+
+IN DATING:
+Women attraction-test men specifically to probe for frame strength. A man who folds under pressure immediately signals low status — evolutionary she's looking for someone who won't cave under real-world challenges. Holding frame under tests = massive attraction signal.`,
+            tags: ["frame", "dominance", "social dynamics", "confidence", "dating"]
+          },
+          {
+            id: "rp_status",
+            title: "Status — The Invisible Multiplier",
+            summary: "How social hierarchy amplifies or dampens physical attractiveness.",
+            content: `Status is perhaps the most powerful yet least understood component of male SMV. It functions as a multiplier — dramatically amplifying or suppressing the effect of physical looks.
+
+WHAT IS STATUS:
+Social status is your perceived position in a dominance hierarchy. It's not about money, fame, or titles per se — it's about how OTHER PEOPLE treat you in your presence. High status = others defer to you, seek your approval, give you attention and resources.
+
+STATUS SIGNALS (what women read unconsciously):
+• How others around you treat you — do people lean in when you speak? Do friends follow your lead?
+• Your level of outcome independence — do you seem to need things from others?
+• Eye contact quality — confident sustained gaze vs anxious glancing away
+• Spatial dominance — do you take up space or shrink?
+• Voice projection and tonality — slow, deep, no vocal fry of insecurity
+• Social proof — others wanting to be around you is the ultimate status signal
+
+THE MULTIPLIER EFFECT:
+• A 6/10 looks man with genuinely high perceived status in his environment can compete with a 7.5/10 looks man with low status
+• A 7/10 looks man who is clearly the most important person in the room is perceived as more attractive than an 8/10 who is socially invisible
+• This effect is WEAKER on dating apps (status is hard to convey in photos) and STRONGER in person
+
+HOW TO RAISE STATUS:
+1. Be the leader in your actual environments — organize things, take charge
+2. Demonstrate preselection — being known as someone other attractive people want
+3. Selective attention — don't give your full attention freely (scarcity principle)
+4. Be reference-worthy — do things worth talking about
+5. Dress and groom at the TOP of your actual environment (not above it — just the top)
+
+IMPORTANT: Fake status is transparent. Real status comes from genuinely having options, doing interesting things, and not needing approval. The behaviors follow naturally.`,
+            tags: ["status", "hierarchy", "SMV", "social proof", "dominance"]
+          },
+        ]
+      },
+      goat_analysis: {
+        label: "GOAT Analysis",
+        icon: "🐐",
+        color: "#E8B07A",
+        entries: [
+          {
+            id: "rp_brad_pitt",
+            title: "Brad Pitt — Anatomy of a 10",
+            summary: "Facial analysis of Brad Pitt's genetics that define the Western male ideal.",
+            content: `Brad Pitt is the most-cited example in the looksmax community for a reason: his face represents an almost perfect convergence of masculine and attractive features. Breaking down WHY creates a roadmap.
+
+FACIAL ANALYSIS:
+
+MAXILLA:
+• Extremely forward-grown maxilla with full midface projection
+• The subnasal area is projected forward — creates the "pushed up" nose base
+• No tear trough hollowing — under-eye support is perfect
+• Cheekbones are high AND forward simultaneously (rare combination)
+
+JAW:
+• Moderately wide bigonial width — not excessive but well-defined
+• Clean jaw angle with sharp definition at the gonial point
+• Chin projection is ideal — not too prominent, perfectly forward
+• No recessed chin at any angle
+
+EYES:
+• Positive canthal tilt (outer corners higher than inner)
+• Deep-set in well-developed orbital rim
+• Heavy superior orbital rim creates "hunter eye" appearance
+• Hooded but not droopy — the ideal male eye shape
+
+CHEEKBONES:
+• Prominent zygomatic arches
+• Forward malar projection (cheeks project toward viewer, not just sideways)
+• Creates the "sculpted" look that photographs extremely well
+
+NOSE:
+• Ideal proportions — straight bridge, refined tip
+• In proper proportion to face width (not too large, not too small)
+• Slightly upturned nasal tip — youthful, not distracting
+
+OVERALL:
+• fWHR is approximately 2.0 — in the sweet spot (dominant but not threatening)
+• Near-perfect facial thirds (equal proportions: forehead/midface/lower face)
+• Extremely high facial symmetry
+• Both masculine AND attractive — usually these trade off; his genetics achieve both
+
+The lesson: Brad Pitt's face is not impressive because of one feature — it's the convergence of multiple near-ideal features simultaneously. This is why he's used as a reference.`,
+            tags: ["Brad Pitt", "facial analysis", "maxilla", "jaw", "GOATs", "10/10"]
+          },
+        ]
+      }
+    }
+  },
+
+  bluepill: {
+    label: "BLUEPILL",
+    icon: "🔵",
+    color: "#3B82F6",
+    glow: "#3B82F622",
+    desc: "Mainstream narratives, myths & counter-analysis",
+    categories: {
+      myths: {
+        label: "Mainstream Myths",
+        icon: "📺",
+        color: "#60A5FA",
+        entries: [
+          {
+            id: "bpp_personality",
+            title: "\"Personality Matters Most\" — Debunked",
+            summary: "Why the most common dating advice is wrong and where it comes from.",
+            content: `"Work on your personality" is the most common dating advice given to men and arguably the most harmful. Not because personality is worthless — it isn't — but because the framing creates a false model of how attraction works.
+
+THE CLAIM:
+"If you have a great personality — humor, kindness, intelligence — you'll attract people regardless of looks."
+
+WHY IT'S WRONG:
+Personality activates AFTER the looks threshold is cleared. It's a second-order filter, not a primary one. Here's the sequence:
+
+1. VISUAL ASSESSMENT (0.1 seconds): "Is this person physically attractive enough for me to engage with?"
+2. SOCIAL ASSESSMENT (first interaction): "Is their behavior congruent with their looks? Are they confident, interesting?"
+3. PERSONALITY ASSESSMENT (weeks/months): "Do their deeper traits, values, humor align with me?"
+
+Personality is evaluated at STAGE 3. If you fail Stage 1, you never reach Stage 3.
+
+THE EVIDENCE:
+• Speed dating studies: attractiveness ratings after 5-minute dates are almost perfectly correlated with pre-meeting attractiveness ratings (personality exposure barely moved the needle)
+• Eastwick & Finkel (2008): people SAY personality matters most in advance; their ACTUAL choices are dominated by physical appearance
+• Online dating: zero personality is conveyed in a photo yet swipe behavior is almost entirely looks-based
+• The "friendzone" phenomenon: men with great personalities who are unattractive are told they're "like a brother" — personality is present but attraction is not
+
+WHERE THE MYTH COMES FROM:
+• Socially desirable answer — people don't WANT to admit they're this shallow
+• Women in particular say personality to avoid seeming superficial (and because they believe it in reflective mode even if their actual behavior says otherwise)
+• Well-meaning but naive advice from people who ARE attractive (their personality DID matter because they already cleared the threshold)
+
+THE NUANCE:
+Personality matters in long-term relationships more than short-term. It matters more in social circle dating than app dating. It matters more after 30 than at 22. But none of this negates the fundamental hierarchy: looks first, everything else second.`,
+            tags: ["personality", "myth", "debunked", "looks", "dating"]
+          },
+          {
+            id: "bpp_confidence",
+            title: "\"Just Be Confident\" — The Causality Error",
+            summary: "Confidence is a symptom of attractiveness, not a cause of it.",
+            content: `"Just be confident" is the second most common piece of useless dating advice. The problem isn't that confidence doesn't matter — it does. The problem is the CAUSAL DIRECTION is completely misunderstood.
+
+THE CONVENTIONAL NARRATIVE:
+Confidence → Attractiveness
+"Build confidence and success will follow"
+
+THE ACTUAL CAUSAL CHAIN:
+Physical Attractiveness → Positive social feedback → Confidence
+OR
+Genuine achievements + Status → Confidence
+
+Confidence isn't something you generate internally and then project outward. It emerges from having an accurate positive self-assessment that is VALIDATED by external reality.
+
+THE EXPERIMENT THOUGHT:
+Take two men, identical in personality and social skills. One is a 4/10 looks, one is an 8/10 looks. Send them to approach identical women.
+
+The 8/10's approaches succeed at a much higher rate. He receives positive feedback repeatedly. He becomes more confident over time. The 4/10's approaches mostly fail. Repeated rejection creates genuine low confidence. Now tell the 4/10 to "just be confident."
+
+This isn't a failure of mindset — it's rational updating based on real-world feedback.
+
+WHAT ACTUALLY BUILDS REAL CONFIDENCE:
+1. Looksmaxxing — improve the underlying variable that determines most outcomes
+2. Genuine competence — be world-class at something
+3. Physical fitness — testosterone, posture, feeling capable in your body
+4. Financial independence — removes dependency and fear
+5. Social success record — confidence compounds from wins
+
+FAKE CONFIDENCE vs REAL CONFIDENCE:
+• Fake confidence: "I'll act confident even though nothing has changed" — people can sense the incongruence and it often reads as arrogant or try-hard
+• Real confidence: earned through actual improvement and social validation — cannot be faked and doesn't need to be
+
+The practical advice: stop trying to manufacture confidence. Build the things that create confidence as a byproduct.`,
+            tags: ["confidence", "myth", "causality", "self-improvement", "advice"]
+          },
+        ]
+      },
+      counter_analysis: {
+        label: "Counter Analysis",
+        icon: "⚖️",
+        color: "#7AB8F5",
+        entries: [
+          {
+            id: "bpp_overton",
+            title: "The Overton Window & Lookspill",
+            summary: "How mainstream media suppresses discussion of genetics and appearance hierarchy.",
+            content: `The Overton Window is the range of ideas politically acceptable in mainstream discourse at any given time. The blackpill and looksmaxxing communities exist almost entirely OUTSIDE this window — and for revealing reasons.
+
+WHAT CAN'T BE SAID PUBLICLY:
+• "Physical appearance is the primary determinant of dating success"
+• "Genetic lottery is the biggest life advantage"
+• "Personality as a dating strategy is largely cope"
+• "The dating market is highly unequal and structurally favors attractive people"
+
+All of these are empirically defensible. None can be said in mainstream media, academia, or corporate contexts without career consequences.
+
+WHY THESE TOPICS ARE SUPPRESSED:
+1. They're deeply uncomfortable for average-looking people (the majority)
+2. They imply that outcomes are partly outside individual control (conflicts with meritocracy narrative)
+3. They can be misused by bad actors to justify resentment
+4. Discussing female preferences critically is politically problematic in current cultural climate
+5. No commercial interest in telling people they can't fix the problem with a product
+
+THE IRONY:
+The beauty industry, fashion industry, dating app industry, and cosmetic surgery industry are all BUILT on the premise that looks matter enormously. Yet mainstream culture simultaneously insists "looks don't matter." The commercial reality directly contradicts the cultural narrative.
+
+THE USEFUL QUESTION:
+Not "Is this comfortable to believe?" but "Is this TRUE, and if true, what's the most useful response?"
+
+The blackpill community exists because mainstream advice consistently fails average-looking men. When official channels give bad advice driven by social desirability bias, unofficial channels emerge with harsher but more accurate information. The suppression of honest discourse creates the radicalization it claims to prevent.`,
+            tags: ["Overton window", "censorship", "media", "narrative", "discourse"]
+          },
+        ]
+      }
+    }
+  }
+};
+
+const PILL_ORDER = ["blackpill", "looksmax", "redpill", "bluepill"];
+
+// ── EDITOR MODAL ───────────────────────────────────────────
+function EntryEditor({ entry, color, onSave, onClose }) {
+  const [title, setTitle] = useState(entry?.title || "");
+  const [summary, setSummary] = useState(entry?.summary || "");
+  const [content, setContent] = useState(entry?.content || "");
+  const [tags, setTags] = useState(entry?.tags?.join(", ") || "");
+
+  const save = () => {
+    if (!title.trim() || !content.trim()) return;
+    onSave({
+      ...entry,
+      id: entry?.id || `custom_${Date.now()}`,
+      title: title.trim(),
+      summary: summary.trim(),
+      content: content.trim(),
+      tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+    });
+  };
+
+  return (
+    <div style={{ position:"fixed", inset:0, zIndex:500, display:"flex", alignItems:"center", justifyContent:"center", padding:20, background:"rgba(0,0,0,0.85)" }} onClick={onClose}>
+      <div className="fade-up" style={{ width:"100%", maxWidth:720, maxHeight:"90vh", overflowY:"auto", background:"#0c0c10", border:`1px solid ${color}44`, borderRadius:16, padding:28 }} onClick={e=>e.stopPropagation()}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:22 }}>
+          <div style={{ fontSize:11, color:color, letterSpacing:3, fontFamily:"'JetBrains Mono',monospace" }}>{entry?.id ? "EDIT ENTRY" : "NEW ENTRY"}</div>
+          <button onClick={onClose} style={{ background:"none", border:"1px solid #222", borderRadius:6, color:"#555", padding:"4px 12px", cursor:"pointer", fontSize:11, fontFamily:"'JetBrains Mono',monospace" }}>✕</button>
+        </div>
+
+        {[
+          { label:"TITLE", val:title, set:setTitle, ph:"Entry title...", mono:false, rows:1 },
+          { label:"SUMMARY (one line)", val:summary, set:setSummary, ph:"Brief summary for the card preview...", mono:false, rows:2 },
+          { label:"FULL CONTENT", val:content, set:setContent, ph:"Detailed knowledge, theories, protocols...", mono:false, rows:16 },
+          { label:"TAGS (comma separated)", val:tags, set:setTags, ph:"tag1, tag2, tag3", mono:true, rows:1 },
+        ].map(field => (
+          <div key={field.label} style={{ marginBottom:16 }}>
+            <div style={{ fontSize:9, color:"#333", fontFamily:"'JetBrains Mono',monospace", marginBottom:6, letterSpacing:2 }}>{field.label}</div>
+            <textarea value={field.val} onChange={e=>field.set(e.target.value)} rows={field.rows} placeholder={field.ph}
+              style={{ width:"100%", background:"#0a0a0e", border:`1px solid #1a1a22`, borderRadius:8, color:"#ddd", padding:"10px 13px", fontSize:field.mono?11:13, fontFamily:field.mono?"'JetBrains Mono',monospace":"'Space Grotesk',sans-serif", outline:"none", resize:"vertical", lineHeight:1.6, transition:"border-color 0.15s" }}
+              onFocus={e=>e.target.style.borderColor=color+"55"}
+              onBlur={e=>e.target.style.borderColor="#1a1a22"}
+            />
+          </div>
+        ))}
+
+        <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:8 }}>
+          <button onClick={onClose} style={{ background:"none", border:"1px solid #1a1a22", borderRadius:8, color:"#444", padding:"10px 22px", cursor:"pointer", fontSize:12, fontFamily:"'JetBrains Mono',monospace" }}>cancel</button>
+          <button onClick={save} disabled={!title.trim()||!content.trim()}
+            style={{ background:`linear-gradient(135deg,${color},${color}aa)`, border:"none", borderRadius:8, color:"#000", padding:"10px 28px", cursor:title.trim()&&content.trim()?"pointer":"not-allowed", fontSize:13, fontWeight:700, fontFamily:"'Space Grotesk',sans-serif", letterSpacing:1, opacity:title.trim()&&content.trim()?1:0.4 }}>
+            SAVE
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ENTRY DETAIL VIEW ──────────────────────────────────────
+function EntryDetail({ entry, color, catColor, onClose, onEdit, onDelete }) {
+  return (
+    <div style={{ position:"fixed", inset:0, zIndex:400, display:"flex", alignItems:"flex-start", justifyContent:"flex-end", padding:"20px 20px", pointerEvents:"none" }}>
+      <div onClick={onClose} style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.55)", pointerEvents:"all" }}/>
+      <div className="slide-in" style={{
+        position:"relative", zIndex:1, width:"min(620px, 100%)", height:"calc(100vh - 40px)",
+        background:"#0a0a0e", border:`1px solid ${color}33`,
+        borderRadius:16, display:"flex", flexDirection:"column", overflow:"hidden",
+        boxShadow:`-16px 0 80px rgba(0,0,0,0.8), 0 0 40px ${color}18`,
+        pointerEvents:"all",
+      }}>
+        {/* Header */}
+        <div style={{ background:`linear-gradient(135deg,${color}18,${color}06)`, borderBottom:`1px solid ${color}22`, padding:"18px 22px", flexShrink:0 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              {entry.tags?.map(t => (
+                <span key={t} style={{ fontSize:9, background:`${color}15`, color:`${color}99`, padding:"2px 9px", borderRadius:10, fontFamily:"'JetBrains Mono',monospace", border:`1px solid ${color}22` }}>{t}</span>
+              ))}
+            </div>
+            <div style={{ display:"flex", gap:8, flexShrink:0, marginLeft:12 }}>
+              <button onClick={onEdit} style={{ background:"none", border:`1px solid ${color}33`, borderRadius:6, color:`${color}88`, padding:"4px 12px", cursor:"pointer", fontSize:10, fontFamily:"'JetBrains Mono',monospace" }}
+                onMouseEnter={e=>{ e.target.style.borderColor=color; e.target.style.color=color; }}
+                onMouseLeave={e=>{ e.target.style.borderColor=color+"33"; e.target.style.color=color+"88"; }}>edit</button>
+              <button onClick={onClose} style={{ background:"none", border:"1px solid #222", borderRadius:6, color:"#444", padding:"4px 12px", cursor:"pointer", fontSize:10, fontFamily:"'JetBrains Mono',monospace" }}>✕</button>
+            </div>
+          </div>
+          <h2 style={{ fontSize:24, fontWeight:700, color:"#fff", letterSpacing:0.5, lineHeight:1.2 }}>{entry.title}</h2>
+          {entry.summary && <p style={{ fontSize:13, color:"#555", marginTop:8, fontStyle:"italic", lineHeight:1.5 }}>{entry.summary}</p>}
+        </div>
+
+        {/* Content */}
+        <div style={{ flex:1, overflowY:"auto", padding:"22px" }}>
+          <div style={{ whiteSpace:"pre-wrap", fontSize:14, lineHeight:1.8, color:"#c8c8cc" }}>
+            {entry.content}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ borderTop:`1px solid #0f0f14`, padding:"12px 22px", display:"flex", justifyContent:"flex-end" }}>
+          <button onClick={()=>{ if(confirm(`Delete "${entry.title}"?`)) onDelete(); }}
+            style={{ background:"none", border:"1px solid #C0392B22", borderRadius:6, color:"#C0392B55", padding:"6px 16px", cursor:"pointer", fontSize:10, fontFamily:"'JetBrains Mono',monospace" }}
+            onMouseEnter={e=>{ e.target.style.borderColor="#C0392B66"; e.target.style.color="#C0392B"; }}
+            onMouseLeave={e=>{ e.target.style.borderColor="#C0392B22"; e.target.style.color="#C0392B55"; }}>
+            delete entry
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ENTRY CARD ─────────────────────────────────────────────
+function EntryCard({ entry, color, onClick }) {
+  const [h, setH] = useState(false);
+  return (
+    <div onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
+      style={{
+        background: h ? `${color}0c` : "#0c0c10",
+        border: `1px solid ${h ? color+"33" : "#14141c"}`,
+        borderRadius:10, padding:"14px 16px", cursor:"pointer",
+        transition:"all 0.18s", borderLeft:`3px solid ${h ? color : color+"44"}`,
+      }}>
+      <div style={{ fontSize:13, fontWeight:600, color: h?"#fff":"#ddd", marginBottom:6, lineHeight:1.3 }}>{entry.title}</div>
+      <div style={{ fontSize:11, color:"#444", lineHeight:1.5, marginBottom:10 }}>{entry.summary}</div>
+      <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+        {entry.tags?.slice(0,4).map(t => (
+          <span key={t} style={{ fontSize:8, background:"#0f0f16", color:"#333", padding:"2px 7px", borderRadius:8, fontFamily:"'JetBrains Mono',monospace", border:"1px solid #1a1a22" }}>{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── CATEGORY PANEL ─────────────────────────────────────────
+function CategoryPanel({ catId, cat, color, entries, onEntryClick, onAddEntry }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div style={{ background:"#090910", border:"1px solid #12121a", borderRadius:12, overflow:"hidden", marginBottom:12 }}>
+      <div onClick={()=>setOpen(v=>!v)} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"13px 18px", cursor:"pointer", background:`${color}08`, borderBottom: open?"1px solid #12121a":"none" }}
+        onMouseEnter={e=>e.currentTarget.style.background=`${color}12`}
+        onMouseLeave={e=>e.currentTarget.style.background=`${color}08`}>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:16 }}>{cat.icon}</span>
+          <span style={{ fontWeight:600, fontSize:13, color:color, letterSpacing:0.5 }}>{cat.label}</span>
+          <span style={{ fontSize:9, color:`${color}66`, background:`${color}12`, padding:"2px 8px", borderRadius:8, fontFamily:"'JetBrains Mono',monospace" }}>{entries.length}</span>
+        </div>
+        <span style={{ fontSize:10, color:"#2a2a35" }}>{open?"▲":"▼"}</span>
+      </div>
+
+      {open && (
+        <div style={{ padding:"14px" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))", gap:10, marginBottom:10 }}>
+            {entries.map(entry => (
+              <EntryCard key={entry.id} entry={entry} color={cat.color} onClick={()=>onEntryClick(entry, cat.color)} />
+            ))}
+          </div>
+          <button onClick={onAddEntry}
+            style={{ width:"100%", background:"none", border:`1px dashed ${color}20`, borderRadius:8, color:`${color}44`, padding:"8px", cursor:"pointer", fontSize:10, fontFamily:"'JetBrains Mono',monospace", transition:"all 0.15s" }}
+            onMouseEnter={e=>{ e.target.style.borderColor=color+"55"; e.target.style.color=color+"88"; }}
+            onMouseLeave={e=>{ e.target.style.borderColor=color+"20"; e.target.style.color=color+"44"; }}>
+            + add entry to {cat.label}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── PILL FACE ──────────────────────────────────────────────
+function PillFace({ pill, isActive, onClick }) {
+  const [h, setH] = useState(false);
+  const totalEntries = Object.values(pill.categories).reduce((s,c)=>s+c.entries.length,0);
+  return (
+    <div onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
+      style={{
+        flex:"1 1 140px", minWidth:130, maxWidth:180, aspectRatio:"1",
+        background: isActive?`linear-gradient(145deg,${pill.color}28,${pill.color}0a)`:(h?`${pill.color}0a`:"#0c0c12"),
+        border:`1px solid ${isActive?pill.color+"cc":h?pill.color+"33":"#16161e"}`,
+        borderRadius:14, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+        cursor:"pointer", transition:"all 0.22s", position:"relative", overflow:"hidden",
+        boxShadow: isActive?`0 0 40px ${pill.color}30,inset 0 0 30px ${pill.color}0a`:(h?`0 0 20px ${pill.color}15`:"none"),
+        transform: isActive?"scale(1.04)":h?"scale(1.02)":"scale(1)",
+      }}>
+      {isActive && <div style={{ position:"absolute", inset:0, background:`radial-gradient(circle at center,${pill.color}14,transparent 65%)` }}/>}
+      <div style={{ fontSize:28, marginBottom:8, position:"relative" }}>{pill.icon}</div>
+      <div style={{ fontWeight:700, fontSize:10, color:isActive?pill.color:h?pill.color+"77":"#2a2a38", letterSpacing:2, textAlign:"center", position:"relative", padding:"0 10px", lineHeight:1.3 }}>{pill.label}</div>
+      <div style={{ fontSize:8, color:isActive?pill.color+"77":"#1e1e28", fontFamily:"'JetBrains Mono',monospace", marginTop:5 }}>{totalEntries} entries</div>
+      {isActive && <div style={{ position:"absolute", bottom:8, width:20, height:2, background:pill.color, borderRadius:1, boxShadow:`0 0 10px ${pill.color}` }}/>}
+    </div>
+  );
+}
+
+// ── SEARCH BAR ─────────────────────────────────────────────
+function SearchBar({ allData, onSelect, color }) {
+  const [q, setQ] = useState("");
+  const results = useMemo(() => {
+    if (q.length < 2) return [];
+    const out = [];
+    Object.entries(allData).forEach(([pillKey, pill]) => {
+      Object.entries(pill.categories).forEach(([catKey, cat]) => {
+        cat.entries.forEach(entry => {
+          const text = `${entry.title} ${entry.summary} ${entry.tags?.join(" ")}`.toLowerCase();
+          if (text.includes(q.toLowerCase())) {
+            out.push({ entry, pill, cat, pillKey, catKey });
+          }
+        });
+      });
+    });
+    return out.slice(0, 8);
+  }, [q, allData]);
+
+  return (
+    <div style={{ position:"relative" }}>
+      <input value={q} onChange={e=>setQ(e.target.value)} placeholder="search all knowledge..."
+        style={{ background:"#0c0c12", border:`1px solid #1a1a24`, borderRadius:8, color:"#ddd", padding:"9px 14px", fontSize:11, fontFamily:"'JetBrains Mono',monospace", width:230, outline:"none", transition:"border-color 0.15s" }}
+        onFocus={e=>e.target.style.borderColor=color+"55"}
+        onBlur={e=>{ e.target.style.borderColor="#1a1a24"; setTimeout(()=>setQ(""),150); }}
+      />
+      {results.length > 0 && (
+        <div style={{ position:"absolute", top:"110%", right:0, width:360, background:"#0d0d14", border:"1px solid #1a1a24", borderRadius:10, zIndex:100, maxHeight:320, overflowY:"auto", boxShadow:"0 12px 40px rgba(0,0,0,0.9)" }}>
+          {results.map((r,i) => (
+            <div key={i} onClick={()=>{ onSelect(r); setQ(""); }}
+              style={{ padding:"10px 14px", borderBottom:"1px solid #0f0f16", cursor:"pointer" }}
+              onMouseEnter={e=>e.currentTarget.style.background="#111118"}
+              onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+              <div style={{ fontSize:12, color:"#ddd", marginBottom:3 }}>{r.entry.title}</div>
+              <div style={{ display:"flex", gap:8 }}>
+                <span style={{ fontSize:9, color:r.pill.color+"88", fontFamily:"'JetBrains Mono',monospace" }}>{r.pill.label}</span>
+                <span style={{ fontSize:9, color:"#2a2a35", fontFamily:"'JetBrains Mono',monospace" }}>→ {r.cat.label}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ADD CATEGORY MODAL ─────────────────────────────────────
+function AddCatModal({ color, onAdd, onClose }) {
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState("📁");
+  const icons = ["📁","🧠","🦴","⚡","🔬","📊","💡","🎯","🔥","⚗️","🌐","🏆"];
+  const colors = ["#FF6B6B","#FFD93D","#6BCB77","#4D96FF","#C77DFF","#FF9F43","#00D2D3","#FF6B9D"];
+  const [col, setCol] = useState(color);
+
+  return (
+    <div style={{ position:"fixed", inset:0, zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,0.8)" }} onClick={onClose}>
+      <div className="fade-up" style={{ background:"#0c0c12", border:`1px solid ${color}44`, borderRadius:14, padding:24, width:360 }} onClick={e=>e.stopPropagation()}>
+        <div style={{ fontSize:10, color:color, fontFamily:"'JetBrains Mono',monospace", letterSpacing:3, marginBottom:16 }}>NEW CATEGORY</div>
+        <input value={name} onChange={e=>setName(e.target.value)} autoFocus placeholder="category name..."
+          style={{ width:"100%", background:"#0a0a0e", border:`1px solid #1a1a22`, borderRadius:8, color:"#ddd", padding:"9px 13px", fontSize:13, outline:"none", marginBottom:14 }}
+          onKeyDown={e=>e.key==="Enter"&&name.trim()&&onAdd({name,icon,color:col})}
+        />
+        <div style={{ marginBottom:14 }}>
+          <div style={{ fontSize:9, color:"#333", fontFamily:"'JetBrains Mono',monospace", marginBottom:8 }}>ICON</div>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+            {icons.map(ic => <button key={ic} onClick={()=>setIcon(ic)} style={{ width:32, height:32, borderRadius:6, border:`1px solid ${ic===icon?color+"77":"#1a1a22"}`, background:ic===icon?`${color}22`:"none", cursor:"pointer", fontSize:16 }}>{ic}</button>)}
+          </div>
+        </div>
+        <div style={{ marginBottom:18 }}>
+          <div style={{ fontSize:9, color:"#333", fontFamily:"'JetBrains Mono',monospace", marginBottom:8 }}>COLOR</div>
+          <div style={{ display:"flex", gap:6 }}>
+            {colors.map(c => <button key={c} onClick={()=>setCol(c)} style={{ width:24, height:24, borderRadius:"50%", background:c, border:`2px solid ${c===col?"#fff":"transparent"}`, cursor:"pointer" }}/>)}
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:8, justifyContent:"flex-end" }}>
+          <button onClick={onClose} style={{ background:"none", border:"1px solid #1a1a22", borderRadius:7, color:"#444", padding:"8px 18px", cursor:"pointer", fontSize:11, fontFamily:"'JetBrains Mono',monospace" }}>cancel</button>
+          <button onClick={()=>name.trim()&&onAdd({name,icon,color:col})} disabled={!name.trim()}
+            style={{ background:col, border:"none", borderRadius:7, color:"#000", padding:"8px 22px", cursor:"pointer", fontSize:12, fontWeight:700, opacity:name.trim()?1:0.4 }}>CREATE</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN APP ───────────────────────────────────────────────
+function App() {
+  const [data, setData] = useState(() => LS.get("kc_data") || KNOWLEDGE_BASE);
+  const [activePill, setActivePill] = useState("blackpill");
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [selectedEntryColor, setSelectedEntryColor] = useState(null);
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [editingCat, setEditingCat] = useState(null);
+  const [showAddCat, setShowAddCat] = useState(false);
+  const [search, setSearch] = useState("");
+  const [saveFlash, setSaveFlash] = useState(false);
+
+  const pill = data[activePill];
+
+  useEffect(() => {
+    LS.set("kc_data", data);
+    setSaveFlash(true);
+    const t = setTimeout(()=>setSaveFlash(false), 1000);
+    return ()=>clearTimeout(t);
+  }, [data]);
+
+  const totalEntries = useMemo(() =>
+    Object.values(data).reduce((s,p)=>s+Object.values(p.categories).reduce((ss,c)=>ss+c.entries.length,0),0),
+  [data]);
+
+  // Save / update entry
+  const saveEntry = (catId, entry) => {
+    setData(prev => {
+      const pill = { ...prev[activePill] };
+      const cat = { ...pill.categories[catId] };
+      const idx = cat.entries.findIndex(e=>e.id===entry.id);
+      if (idx>=0) {
+        cat.entries = [...cat.entries];
+        cat.entries[idx] = entry;
+      } else {
+        cat.entries = [...cat.entries, entry];
+      }
+      return { ...prev, [activePill]: { ...pill, categories: { ...pill.categories, [catId]: cat } } };
+    });
+    setEditingEntry(null);
+    setSelectedEntry(entry);
+  };
+
+  const deleteEntry = (catId, entryId) => {
+    setData(prev => {
+      const pill = { ...prev[activePill] };
+      const cat = { ...pill.categories[catId] };
+      cat.entries = cat.entries.filter(e=>e.id!==entryId);
+      return { ...prev, [activePill]: { ...pill, categories: { ...pill.categories, [catId]: cat } } };
+    });
+    setSelectedEntry(null);
+  };
+
+  const addCategory = ({ name, icon, color }) => {
+    const id = name.toLowerCase().replace(/\s+/g,"_") + "_" + Date.now();
+    setData(prev => ({
+      ...prev,
+      [activePill]: {
+        ...prev[activePill],
+        categories: {
+          ...prev[activePill].categories,
+          [id]: { label: name, icon, color, entries: [] }
+        }
+      }
+    }));
+    setShowAddCat(false);
+  };
+
+  const handleSearchSelect = ({ entry, cat, pillKey }) => {
+    setActivePill(pillKey);
+    setTimeout(() => {
+      setSelectedEntry(entry);
+      setSelectedEntryColor(cat.color);
+      setEditingCat(null);
+    }, 50);
+  };
+
+  // Find catId for selected entry
+  const findCatForEntry = (entryId) => {
+    const cats = data[activePill]?.categories || {};
+    for (const [catId, cat] of Object.entries(cats)) {
+      if (cat.entries.find(e=>e.id===entryId)) return catId;
+    }
+    return null;
+  };
+
+  const selectedCatId = selectedEntry ? findCatForEntry(selectedEntry.id) : null;
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#060608", fontFamily:"'Space Grotesk',sans-serif", color:"#e8e8e8", paddingBottom:80 }}>
+
+      {/* Modals */}
+      {editingEntry && (
+        <EntryEditor
+          entry={editingEntry.entry}
+          color={pill.color}
+          onSave={(e)=>saveEntry(editingEntry.catId, e)}
+          onClose={()=>setEditingEntry(null)}
+        />
+      )}
+      {showAddCat && <AddCatModal color={pill.color} onAdd={addCategory} onClose={()=>setShowAddCat(false)}/>}
+      {selectedEntry && selectedCatId && (
+        <EntryDetail
+          entry={selectedEntry}
+          color={pill.color}
+          catColor={selectedEntryColor}
+          onClose={()=>setSelectedEntry(null)}
+          onEdit={()=>{ setEditingEntry({ catId:selectedCatId, entry:selectedEntry }); setSelectedEntry(null); }}
+          onDelete={()=>deleteEntry(selectedCatId, selectedEntry.id)}
+        />
+      )}
+
+      {/* Ambient */}
+      <div style={{ position:"fixed", inset:0, background:`radial-gradient(ellipse at 0% 0%,${pill.glow},transparent 50%),radial-gradient(ellipse at 100% 100%,${pill.color}08,transparent 50%)`, pointerEvents:"none", transition:"background 0.7s", zIndex:0 }}/>
+
+      {/* Save flash */}
+      {saveFlash && <div style={{ position:"fixed", bottom:20, right:20, background:"#0c0c12", border:"1px solid #1a1a24", borderRadius:7, padding:"5px 13px", fontSize:9, color:"#2a2a38", fontFamily:"'JetBrains Mono',monospace", zIndex:200 }}>saved ✓</div>}
+
+      <div style={{ position:"relative", zIndex:1, maxWidth:1140, margin:"0 auto", padding:"26px 20px" }}>
+
+        {/* Header */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28, flexWrap:"wrap", gap:16 }}>
+          <div>
+            <div style={{ fontSize:9, color:pill.color, letterSpacing:4, fontFamily:"'JetBrains Mono',monospace", marginBottom:4 }}>KNOWLEDGE CUBE · FULL ENCYCLOPEDIA</div>
+            <h1 style={{ fontWeight:700, fontSize:38, letterSpacing:2, color:"#fff", lineHeight:1 }}>
+              KNOWLEDGE <span style={{ color:pill.color }}>BASE</span>
+            </h1>
+            <div style={{ fontSize:9, color:"#1e1e2a", marginTop:5, fontFamily:"'JetBrains Mono',monospace" }}>
+              {totalEntries} ENTRIES TOTAL · CLICK ANY CARD TO READ FULL CONTENT · ALL DATA SAVED LOCALLY
+            </div>
+          </div>
+          <SearchBar allData={data} onSelect={handleSearchSelect} color={pill.color}/>
+        </div>
+
+        {/* Cube faces */}
+        <div style={{ display:"flex", gap:12, marginBottom:34, flexWrap:"wrap" }}>
+          {PILL_ORDER.map(pk => <PillFace key={pk} pill={data[pk]} isActive={activePill===pk} onClick={()=>setActivePill(pk)}/>)}
+        </div>
+
+        {/* Active pill banner */}
+        <div style={{ background:`linear-gradient(135deg,${pill.color}14,transparent)`, border:`1px solid ${pill.color}24`, borderLeft:`4px solid ${pill.color}`, borderRadius:10, padding:"14px 20px", marginBottom:20, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:10 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <span style={{ fontSize:24 }}>{pill.icon}</span>
+            <div>
+              <div style={{ fontWeight:700, fontSize:20, color:pill.color, letterSpacing:2 }}>{pill.label}</div>
+              <div style={{ fontSize:11, color:"#2a2a38", fontFamily:"'JetBrains Mono',monospace", marginTop:2 }}>{pill.desc}</div>
+            </div>
+          </div>
+          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+            <span style={{ fontSize:9, color:`${pill.color}77`, background:`${pill.color}10`, padding:"5px 12px", borderRadius:16, fontFamily:"'JetBrains Mono',monospace" }}>
+              {Object.values(pill.categories).reduce((s,c)=>s+c.entries.length,0)} entries · {Object.keys(pill.categories).length} categories
+            </span>
+            <button onClick={()=>setShowAddCat(true)}
+              style={{ padding:"7px 14px", background:"transparent", border:`1px solid ${pill.color}33`, borderRadius:7, color:`${pill.color}66`, fontSize:10, cursor:"pointer", fontFamily:"'JetBrains Mono',monospace", letterSpacing:1, transition:"all 0.15s" }}
+              onMouseEnter={e=>{ e.target.style.borderColor=pill.color; e.target.style.color=pill.color; }}
+              onMouseLeave={e=>{ e.target.style.borderColor=pill.color+"33"; e.target.style.color=pill.color+"66"; }}>
+              + category
+            </button>
+          </div>
+        </div>
+
+        {/* Categories */}
+        {Object.entries(pill.categories).map(([catId, cat]) => (
+          <CategoryPanel
+            key={catId}
+            catId={catId}
+            cat={cat}
+            color={pill.color}
+            entries={cat.entries}
+            onEntryClick={(entry, catColor) => { setSelectedEntry(entry); setSelectedEntryColor(catColor); }}
+            onAddEntry={() => setEditingEntry({ catId, entry: null })}
+          />
+        ))}
+
+        {/* Bottom nav */}
+        <div style={{ marginTop:28, display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
+          {PILL_ORDER.map(pk => {
+            const p = data[pk];
+            const count = Object.values(p.categories).reduce((s,c)=>s+c.entries.length,0);
+            return (
+              <div key={pk} onClick={()=>setActivePill(pk)}
+                style={{ padding:"7px 18px", background:activePill===pk?`${p.color}18`:"#0c0c12", border:`1px solid ${activePill===pk?p.color+"77":"#14141e"}`, borderRadius:20, cursor:"pointer", display:"flex", alignItems:"center", gap:8, transition:"all 0.15s" }}
+                onMouseEnter={e=>{ if(activePill!==pk) e.currentTarget.style.borderColor=p.color+"33"; }}
+                onMouseLeave={e=>{ if(activePill!==pk) e.currentTarget.style.borderColor="#14141e"; }}>
+                <span style={{ fontSize:13 }}>{p.icon}</span>
+                <span style={{ fontSize:9, color:activePill===pk?p.color:"#2a2a38", fontFamily:"'JetBrains Mono',monospace" }}>{p.label}</span>
+                <span style={{ fontSize:8, background:"#0f0f16", padding:"1px 6px", borderRadius:8, fontFamily:"'JetBrains Mono',monospace", color:activePill===pk?`${p.color}88`:"#1e1e28" }}>{count}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ textAlign:"center", marginTop:20, fontSize:9, color:"#0f0f18", letterSpacing:2, fontFamily:"'JetBrains Mono',monospace" }}>
+          CLICK CARD → FULL CONTENT · EDIT / DELETE IN DETAIL VIEW · + ADD ENTRY BELOW EACH CATEGORY
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
